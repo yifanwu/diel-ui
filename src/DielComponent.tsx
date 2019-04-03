@@ -9,9 +9,9 @@ export interface DielHanders {
   deSelectHandler?: () => void;
 }
 
-interface DielComponentProps {
+export interface DielComponentProps {
   bindOutput: (name: string, fn: (r: RelationObject) => void) => void;
-  scales: (name: string) => {dimension: number, x: string, y?: string, z?: string};
+  scales: (output: string, component?: string) => {dimension: number, x: string, y?: string, z?: string};
 }
 
 interface DielComponentState {
