@@ -1,6 +1,6 @@
 import DielComponent, { DielComponentProps } from "./DielComponent";
 import { OneDimSelection, ChartType, TwoDimSelection } from "./types";
-import { MapChart, MapBounds, MapRegion } from "./charts/Map";
+import { MapChart, MapBounds, MapRegion } from "./charts/MapChart";
 import { Scatterplot } from "./charts/ScatterPlot";
 import { BarChart } from "./charts/BarChart";
 import { HeatMap } from "./charts/HeatMap";

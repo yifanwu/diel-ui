@@ -2,6 +2,7 @@ import * as React from "react";
 import { RelationObject } from "../types";
 
 interface TableProps {
+  columns: string[];
   data: RelationObject;
 }
 
@@ -10,7 +11,7 @@ export const Table: React.StatelessComponent<TableProps> = (p) => {
   for (let i = 0; i < p.data.length; i++) {
     let rowID = `row${i}`;
     let cell = [];
-    for (let idx = 0; idx < this.state.size; idx++) {
+    for (let idx = 0; idx < p.columns.length; idx++) {
       let cellID = `cell${i}-${idx}`;
       cell.push(<td key={cellID} id={cellID}></td>);
     }
