@@ -1,6 +1,6 @@
 import * as d3 from "d3";
 import * as React from "react";
-import { ChartPropShared, ChartSpec2DWithData, FilterValueType, TwoDimSelection, SelectionType } from "../types";
+import { ChartPropShared, FilterValueType, UserSelection, ChannelName, SelectionType,  } from "../types";
 import { DefaultVizLayout } from "../defaults";
 
 interface TwoDimCoordProps extends ChartPropShared {
@@ -9,17 +9,14 @@ interface TwoDimCoordProps extends ChartPropShared {
   // for line chart, reduce to single attribute
   // FIXME: get rid of the any's
   shapeGen: (x: any, y: any) => any;
-  spec: ChartSpec2DWithData;
-  selectedDataRange?: {
-    minX: FilterValueType; maxX: FilterValueType,
-    minY?: FilterValueType; maxY?: FilterValueType
-  };
-  brushHandler?: (box: TwoDimSelection) => void;
+  brushHandler?: (box: UserSelection) => void;
 }
 
 export const TwoDimCoord: React.StatelessComponent<TwoDimCoordProps> = (p) => {
   const layout = p.layout ? p.layout : DefaultVizLayout;
-  const {data, xAttribute, yAttribute} = p.spec;
+  const data = p.data;
+  const xAttribute = p.spec.channelByColumn.get(ChannelName.x);
+  const yAttribute = p.spec.channelByColumn.get(ChannelName.y);
   // FIXME: brittle casting
   if (!data) {
     return <p>Data still loading</p>;
@@ -55,13 +52,20 @@ export const TwoDimCoord: React.StatelessComponent<TwoDimCoordProps> = (p) => {
         const maxX = Math.max(x.invert(s[0][0]), x.invert(s[1][0]));
         const minY = Math.min(y.invert(s[1][1]), y.invert(s[0][1]));
         const maxY = Math.max(y.invert(s[1][1]), y.invert(s[0][1]));
-        p.brushHandler({
-          brushBoxType: SelectionType.TwoDim,
-          minX,
-          maxX,
-          minY,
-          maxY
-        });
+        p.brushHandler([
+          {
+            selectionType: SelectionType.Range,
+            channelName: ChannelName.x,
+            min: minX,
+            max: maxX
+          },
+          {
+            selectionType: SelectionType.Range,
+            channelName: ChannelName.y,
+            min: minY,
+            max: maxY
+          },
+        ]);
       }
       d3.select(this).call(brush.move, null);
     });

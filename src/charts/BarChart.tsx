@@ -1,25 +1,20 @@
 import * as React from "react";
 import * as d3 from "d3";
-import { ChartPropShared, OneDimSelection, FilterValueType, ChartSpec3DWithData, SelectionType, ChartSpecWithData } from "../types";
+import { ChartPropShared, SelectionType, ChannelName, RangeUnitSelection} from "../types";
 import { DefaultColorSpec, DefaultVizLayout } from "../defaults";
 
-interface BarChartProp extends ChartPropShared {
-  // barchart can supper 2D and 3D data
-  spec: ChartSpecWithData;
-  brushHandler?: (box: OneDimSelection) => void;
-  selectedDataRange?: {min: FilterValueType; max: FilterValueType};
-}
-
-export const BarChart: React.StatelessComponent<BarChartProp> = (p) => {
-  const data = p.spec.data;
+export const BarChart: React.StatelessComponent<ChartPropShared> = (p) => {
+  const data = p.data;
+  const dimNumber = p.spec.channelByColumn.size;
   if ((!data) || (data.length < 1)) {
     return <p>no result</p>;
   }
-  console.log("props", p);
+  const xAttribute = p.spec.channelByColumn.get(ChannelName.x);
+  const yAttribute = p.spec.channelByColumn.get(ChannelName.y);
+  const colorAttribute = p.spec.channelByColumn.get(ChannelName.color);
   function getZScale() {
-    if (p.spec.dimension === 3) {
-      const spec3D = p.spec as ChartSpec3DWithData;
-      const zScale = Array.from(new Set(p.spec.data.map(d => d[spec3D.zAttribute] as string))).sort();
+    if (dimNumber === 3) {
+      const zScale = Array.from(new Set(p.data.map(d => d[colorAttribute] as string))).sort();
       const colors = (p.colorSpec && p.colorSpec.defaultMultiple)
         ? p.colorSpec.defaultMultiple
         : DefaultColorSpec.defaultMultiple;
@@ -33,24 +28,22 @@ export const BarChart: React.StatelessComponent<BarChartProp> = (p) => {
   const layout = p.layout ? p.layout : DefaultVizLayout;
   const {chartWidth, chartHeight} = layout;
   // CORNER CASE of a single bar
-  const yDomain = (p.spec.data.length === 1)
-    ? [0, p.spec.data[0][p.spec.yAttribute] as number]
-    : d3.extent(p.spec.data.map(d => d[p.spec.yAttribute] as number));
+  const yDomain = (data.length === 1)
+    ? [0, data[0][yAttribute] as number]
+    : d3.extent(data.map(d => d[yAttribute] as number));
   let y = d3.scaleLinear().rangeRound([layout.chartHeight, 0]).domain(yDomain);
-  // const xDomain = p.spec.data.map(d => d[p.spec.xAttribute].toString());
-  // const x = d3.scaleBand().rangeRound([0, layout.chartWidth]).padding(0.4).domain(xDomain);
-  // const xDomain = p.spec.data.map((_, i) => i);
   // FIXME: brittle
-  const x = d3.scaleLinear().rangeRound([0, chartWidth]).domain([0, p.spec.data.length]);
+  const x = d3.scaleLinear().rangeRound([0, chartWidth]).domain([0, data.length]);
   // const barWidth = x.bandwidth();
   const barWidth = Math.round(chartWidth * 0.8 / data.length);
+  const selectionMapped = p.selectedDataRange[0] as RangeUnitSelection;
   const bars =  data.map((d, idx) => {
-    const yPos = y(d[p.spec.yAttribute] as number);
-    const c = p.spec.dimension === 3
-      ? zColorsScale(d[(p.spec as ChartSpec3DWithData).zAttribute] as string)
+    const yPos = y(d[yAttribute] as number);
+    const c = dimNumber === 3
+      ? zColorsScale(d[colorAttribute] as string)
       : color;
-    const barColor = p.selectedDataRange
-      ? ((d[p.spec.xAttribute] <= p.selectedDataRange.max) && (d[p.spec.xAttribute] >= p.selectedDataRange.min))
+    const barColor = selectionMapped
+      ? ((d[xAttribute] <= selectionMapped.max) && (d[xAttribute] >= selectionMapped.min))
         ? selectedColor
         : c
       : c;
@@ -67,7 +60,7 @@ export const BarChart: React.StatelessComponent<BarChartProp> = (p) => {
   // const xTickValues = data.map(v => v[p.spec.xAttribute] as any);
   const xFormatter = (t: any) => {
     const idx = parseInt(t);
-    const tickVal = data[idx] ? data[idx][p.spec.xAttribute] : "";
+    const tickVal = data[idx] ? data[idx][xAttribute] : "";
     return tickVal;
   };
   // not sure why we need to subtract 1 but we do...
@@ -87,12 +80,9 @@ export const BarChart: React.StatelessComponent<BarChartProp> = (p) => {
       if (!d3.event.selection) return; // Ignore empty selections.
       const s = d3.brushSelection(this) as [number, number];
       if (s !== null) {
-        const box = {
-          brushBoxType: SelectionType.OneDim,
-          min: data[Math.floor(x.invert(Math.min(s[0], s[1])))][p.spec.xAttribute] as number,
-          max: data[Math.floor(x.invert(Math.max(s[0], s[1])))][p.spec.xAttribute] as number
-        };
-        p.brushHandler(box);
+        const min = data[Math.floor(x.invert(Math.min(s[0], s[1])))][xAttribute] as number;
+        const max = data[Math.floor(x.invert(Math.max(s[0], s[1])))][xAttribute] as number;
+        p.brushHandler([{selectionType: SelectionType.Range, min, max, channelName: ChannelName.x}]);
       }
       d3.select(this).call(brush.move, null);
     });

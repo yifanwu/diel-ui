@@ -1,23 +1,19 @@
 import * as React from "react";
-import { TwoDimCoord } from "./TwoDimCoord";
 import * as d3 from "d3";
-import { ChartPropShared, ChartSpec2DWithData, FilterValueType, TwoDimSelection, RecordObject } from "../types";
+import { RecordObject } from "diel";
 
-interface LineChartProps extends ChartPropShared {
-  spec: ChartSpec2DWithData;
-  selectedDataRange?: {
-    minX: FilterValueType; maxX: FilterValueType,
-  };
-  brushHandler?: (box: TwoDimSelection) => void;
-}
+import { ChartPropShared, FilterValueType, ChannelName } from "../types";
+import { TwoDimCoord } from "./TwoDimCoord";
 
-export const LineChart: React.StatelessComponent<LineChartProps> = (p) => {
+
+export const LineChart: React.StatelessComponent<ChartPropShared> = (p) => {
   const color = p.colorSpec ? p.colorSpec.default : "steelblue";
-  const {data, xAttribute, yAttribute} = p.spec;
 
+  const xAttribute = p.spec.channelByColumn.get(ChannelName.x);
+  const yAttribute = p.spec.channelByColumn.get(ChannelName.y);
   const shapeGen = (x: any, y: any) => {
     let lineMapping = d3.line<RecordObject>().x((d) => x(d[xAttribute])).y((d) => y(d[yAttribute]));
-    let line = lineMapping(data);
+    let line = lineMapping(p.data);
     return <path stroke={color} fill="none" stroke-wdith="1.5" d={line}></path>;
   };
   return <TwoDimCoord

@@ -2,7 +2,7 @@ import * as React from "react";
 import { geoPath, geoEquirectangular } from "d3-geo"
 import * as d3 from "d3";
 
-import { ChartPropShared, ChartSpec2DWithData, TwoDimSelection, SelectionType } from "../types";
+import { ChartPropShared, SelectionType, ChannelName } from "../types";
 import { DefaultVizLayout } from "../defaults";
 import { LogError } from "../util";
 import { ContainerElement, clientPoint } from "d3";
@@ -47,12 +47,9 @@ interface MapState {
 export type MapBounds = {latMin: number, latMax: number, longMin: number, longMax: number};
 
 interface MapProp extends ChartPropShared {
-  spec: ChartSpec2DWithData;
   mapRegion: MapRegion;
   mapBounds?: MapBounds;
   brushToRender?: MapBounds;
-  selectedDataRange?: TwoDimSelection;
-  brushHandler?: (box: TwoDimSelection) => void;
   onClickHandler?: (pos?: [number, number]) => void;
 }
 
@@ -121,12 +118,13 @@ export class MapChart extends React.Component<MapProp, MapState> {
 
   render() {
     const layout = this.props.layout ? this.props.layout : DefaultVizLayout;
-    const { data, xAttribute, yAttribute } = this.props.spec;
     const { brushToRender } = this.props;
-
+    const data = this.props.data;
     if (!this.state.geoData) {
       return <p>Loading map base data</p>;
     }
+    const xAttribute = this.props.spec.channelByColumn.get(ChannelName.x);
+    const yAttribute = this.props.spec.channelByColumn.get(ChannelName.y);
     const {s, t} = getUSProjection(layout.chartWidth, layout.chartHeight);
     let projection = geoEquirectangular()
                       .scale(s)
@@ -156,13 +154,19 @@ export class MapChart extends React.Component<MapProp, MapState> {
           const maxY = Math.max(p1[1], p2[1]);
           const maxX = Math.max(p1[0], p2[0]); // long
           const minX = Math.min(p1[0], p2[0]);
-          brushHandler({
-            brushBoxType: SelectionType.TwoDim,
-            minX,
-            maxX,
-            minY,
-            maxY
-          });
+          brushHandler([
+            {
+              selectionType: SelectionType.Range,
+              channelName: ChannelName.x,
+              min: minX,
+              max: maxX
+            },
+            {
+              selectionType: SelectionType.Range,
+              channelName: ChannelName.y,
+              min: minY,
+              max: maxY
+            }]);
         }
       });
       brushDiv = <g ref={ g => d3.select(g).call(brush) }></g>;

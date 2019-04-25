@@ -7,6 +7,11 @@ export const DefaultColorSpec = {
   defaultMultiple: d3ScaleChromatic.schemeCategory10
 };
 
+export const DefaultColorRange = {
+  minColor: "blue",
+  maxColor: "red"
+}
+
 export const DefaultVizLayout = {
   chartHeight: 300,
   chartWidth: 400,

@@ -1,23 +1,39 @@
 import * as React from "react";
 
-import { GenericSelection, RelationObject, ChartType, ChartSpec2DWithData, ChartSpec3DWithData } from "./types";
+import { DielRuntime, RelationObject } from "diel";
+import { ReportDielUserError } from "diel/build/src/util/messages";
+import { UserSelection, ChartType, ChartSpec, ChannelName } from "./types";
 import { BarChart } from "./charts/BarChart";
 import { Scatterplot } from "./charts/ScatterPlot";
+import { Table, HeatMap } from ".";
+import { LineChart } from "./charts/LineChart";
 
 export interface DielHanders {
-  selectionHandler?: (box: GenericSelection) => void;
+  selectionHandler?: (box: UserSelection) => void;
   deSelectHandler?: () => void;
 }
 
+// just pass the diel runtime in, this hides the exact interfacing
+// scales: (output: string, component?: string) => {dimension: number, x: string, y?: string, z?: string};
 export interface DielComponentProps {
-  bindOutput: (name: string, fn: (r: RelationObject) => void) => void;
-  scales: (output: string, component?: string) => {dimension: number, x: string, y?: string, z?: string};
+  diel: DielRuntime;
+  // bindOutput: (name: string, fn: (r: RelationObject) => void) => void;
 }
 
 interface DielComponentState {
   [index: string]: RelationObject;
 }
 
+interface Scale {
+  dimension: number;
+  x: string;
+  y?: string;
+  z?: string;
+}
+
+/**
+ * The scales props should be optional --- only needed if using the Generate
+ */
 export default class DielComponent<P extends DielComponentProps> extends React.Component<P, DielComponentState>  {
 
   constructor(props: P) {
@@ -31,61 +47,64 @@ export default class DielComponent<P extends DielComponentProps> extends React.C
       const fn = (r: RelationObject) => {
         self.setState({[relationName]: r});
       };
-      this.props.bindOutput(relationName, fn);
+      this.props.diel.BindOutput(relationName, fn);
     });
   }
 
   // FIXME: this is inefficient
-  GenerateChart (chartType: ChartType, relationName: string, handlers?: DielHanders) {
-    if (this.state[relationName]) {
-      const scales = this.props.scales(relationName);
-      const dimension = scales.dimension as number;
-      const data = this.state[relationName];
-      const xAttribute = scales.x as string;
-      const yAttribute = scales.y as string;
-      let spec = (dimension === 2)
-        ? {
-          chartType,
-          dimension,
-          relationName,
-          data,
-          xAttribute,
-          yAttribute
-        } as ChartSpec2DWithData
-      : {
-        chartType,
-        dimension,
-        relationName,
-        data,
-        xAttribute,
-        yAttribute,
-        zAttribute: scales.z as string
-      } as ChartSpec3DWithData;
-      if (chartType === ChartType.BarChart) {
+  GenerateChart (chartType: ChartType, relationName: string, handlers?: DielHanders, scale?: Scale) {
+
+    const data = this.state[relationName];
+    if (!data) return null;
+    if (!scale) {
+      // let's fall back to that it's defined in the database
+      // FIXME: this interface is very strange
+      scale = this.props.diel.GetScales(relationName);
+      if (!scale) {
+        return ReportDielUserError(`Scales is not provided by either the function or the diel specification`);
+      }
+    }
+    const dimension = scale.dimension as number;
+    let spec: ChartSpec = {
+      chartType,
+      channelByColumn: new Map(),
+      relationName
+    }
+    switch(chartType) {
+      case ChartType.BarChart:
+        spec.channelByColumn.set(ChannelName.x,scale.x as string);
         return <BarChart
+          spec={spec}
+          data={data}
+          brushHandler={handlers ? handlers.selectionHandler : null}
+          svgClickHandler={handlers ? handlers.deSelectHandler : null}
+        />;
+      case ChartType.Scatter:
+        return <Scatterplot
+          spec={spec}
+          data={data}
+          brushHandler={handlers ? handlers.selectionHandler : null}
+        />;
+      case ChartType.Table:
+        return <Table
+          data={data}
+        />;
+      case ChartType.LineChart:
+        return <LineChart
+          data={data}
           spec={spec}
           brushHandler={handlers ? handlers.selectionHandler : null}
           svgClickHandler={handlers ? handlers.deSelectHandler : null}
         />;
-      } else if (chartType === ChartType.Scatter) {
-        return <Scatterplot
+      case ChartType.Heatmap:
+        return <HeatMap
+          data={data}
           spec={spec}
           brushHandler={handlers ? handlers.selectionHandler : null}
+          svgClickHandler={handlers ? handlers.deSelectHandler : null}
         />;
-      } else {
+      default:
         throw new Error(`Only supports barcharts and scatter plots for now`);
-        // else if (chartType === ChartType.Map) {
-        //   return <MapChart
-        //     spec={spec}
-        //     // hard code for now..
-        //     mapRegion={MapRegion.US}
-        //   />;
-        //   // LogInternalError(`The API for the Map ChartType is not complete yet`);
-        // }
-      }
-    } else {
-      console.log(`The state of relation ${relationName} has not being set`);
-      return <p>Loading</p>;
     }
   }
 }
