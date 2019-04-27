@@ -4,7 +4,7 @@ import { Scatterplot } from "./charts/ScatterPlot";
 import { BarChart } from "./charts/BarChart";
 import { HeatMap } from "./charts/HeatMap";
 import { Table } from "./charts/Table";
-import { ChartType, UserSelection } from "./types";
+import { ChartType, UserSelection, ChartSpec, ChannelName } from "./types";
 import { DotPlotSingle } from "./charts/DotPlotSingle";
 
 export {
@@ -12,6 +12,9 @@ export {
   DielComponentProps,
   UserSelection,
   ChartType,
+  ChartSpec,
+  ChannelName,
+  // charts
   Scatterplot,
   BarChart,
   HeatMap,

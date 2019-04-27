@@ -1,8 +1,7 @@
 import * as React from "react";
 
 import { DielRuntime, RelationObject } from "diel";
-import { ReportDielUserError } from "diel/build/src/util/messages";
-import { UserSelection, ChartType, ChartSpec, ChannelName } from "./types";
+import { UserSelection, ChartType, ChartSpec } from "./types";
 import { BarChart } from "./charts/BarChart";
 import { Scatterplot } from "./charts/ScatterPlot";
 import { Table, HeatMap } from ".";
@@ -52,27 +51,12 @@ export default class DielComponent<P extends DielComponentProps> extends React.C
   }
 
   // FIXME: this is inefficient
-  GenerateChart (chartType: ChartType, relationName: string, handlers?: DielHanders, scale?: Scale) {
+  GenerateChart (spec: ChartSpec, relationName: string, handlers?: DielHanders) {
 
     const data = this.state[relationName];
     if (!data) return null;
-    if (!scale) {
-      // let's fall back to that it's defined in the database
-      // FIXME: this interface is very strange
-      scale = this.props.diel.GetScales(relationName);
-      if (!scale) {
-        return ReportDielUserError(`Scales is not provided by either the function or the diel specification`);
-      }
-    }
-    const dimension = scale.dimension as number;
-    let spec: ChartSpec = {
-      chartType,
-      channelByColumn: new Map(),
-      relationName
-    }
-    switch(chartType) {
+    switch(spec.chartType) {
       case ChartType.BarChart:
-        spec.channelByColumn.set(ChannelName.x,scale.x as string);
         return <BarChart
           spec={spec}
           data={data}

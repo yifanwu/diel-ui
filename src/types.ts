@@ -98,7 +98,7 @@ export interface ChartSpec {
   chartType: ChartType;
   // channelName to columnName
   channelByColumn: Map<ChannelName, string>;
-  relationName: string;
+  // relationName: string;
 }
 
 
