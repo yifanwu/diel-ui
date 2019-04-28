@@ -36,7 +36,9 @@ export const BarChart: React.StatelessComponent<ChartPropShared> = (p) => {
   const x = d3.scaleLinear().rangeRound([0, chartWidth]).domain([0, data.length]);
   // const barWidth = x.bandwidth();
   const barWidth = Math.round(chartWidth * 0.8 / data.length);
-  const selectionMapped = p.selectedDataRange[0] as RangeUnitSelection;
+  const selectionMapped = p.selectedDataRange
+    ? p.selectedDataRange[0] as RangeUnitSelection
+    : null;
   const bars =  data.map((d, idx) => {
     const yPos = y(d[yAttribute] as number);
     const c = dimNumber === 3

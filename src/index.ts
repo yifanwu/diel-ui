@@ -6,8 +6,11 @@ import { HeatMap } from "./charts/HeatMap";
 import { Table } from "./charts/Table";
 import { ChartType, UserSelection, ChartSpec, ChannelName } from "./types";
 import { DotPlotSingle } from "./charts/DotPlotSingle";
+import { GetChartWithSpec } from "./GetCharts";
+import { LineChart } from "./charts/LineChart";
 
 export {
+  GetChartWithSpec,
   DielComponent,
   DielComponentProps,
   UserSelection,
@@ -17,6 +20,7 @@ export {
   // charts
   Scatterplot,
   BarChart,
+  LineChart,
   HeatMap,
   DotPlotSingle,
   Table,

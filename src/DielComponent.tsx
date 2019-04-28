@@ -2,10 +2,7 @@ import * as React from "react";
 
 import { DielRuntime, RelationObject } from "diel";
 import { UserSelection, ChartType, ChartSpec } from "./types";
-import { BarChart } from "./charts/BarChart";
-import { Scatterplot } from "./charts/ScatterPlot";
-import { Table, HeatMap } from ".";
-import { LineChart } from "./charts/LineChart";
+import { GetChartWithSpec } from "./GetCharts";
 
 export interface DielHanders {
   selectionHandler?: (box: UserSelection) => void;
@@ -52,43 +49,8 @@ export default class DielComponent<P extends DielComponentProps> extends React.C
 
   // FIXME: this is inefficient
   GenerateChart (spec: ChartSpec, relationName: string, handlers?: DielHanders) {
-
     const data = this.state[relationName];
-    if (!data) return null;
-    switch(spec.chartType) {
-      case ChartType.BarChart:
-        return <BarChart
-          spec={spec}
-          data={data}
-          brushHandler={handlers ? handlers.selectionHandler : null}
-          svgClickHandler={handlers ? handlers.deSelectHandler : null}
-        />;
-      case ChartType.Scatter:
-        return <Scatterplot
-          spec={spec}
-          data={data}
-          brushHandler={handlers ? handlers.selectionHandler : null}
-        />;
-      case ChartType.Table:
-        return <Table
-          data={data}
-        />;
-      case ChartType.LineChart:
-        return <LineChart
-          data={data}
-          spec={spec}
-          brushHandler={handlers ? handlers.selectionHandler : null}
-          svgClickHandler={handlers ? handlers.deSelectHandler : null}
-        />;
-      case ChartType.Heatmap:
-        return <HeatMap
-          data={data}
-          spec={spec}
-          brushHandler={handlers ? handlers.selectionHandler : null}
-          svgClickHandler={handlers ? handlers.deSelectHandler : null}
-        />;
-      default:
-        throw new Error(`Only supports barcharts and scatter plots for now`);
-    }
+    if (data) return GetChartWithSpec(spec, data, handlers);
+    return null;
   }
 }

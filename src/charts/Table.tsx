@@ -17,19 +17,25 @@ export const Table: React.StatelessComponent<TableProps> = (p) => {
     let cell = [];
     for (let idx = 0; idx < columns.length; idx++) {
       let cellID = `cell${i}-${idx}`;
-      cell.push(<td key={cellID} id={cellID}></td>);
+      cell.push(<td key={cellID} id={cellID}>{p.data[i][columns[idx]]}</td>);
     }
     rows.push(<tr key={i} id={rowID}>{cell}</tr>);
   }
+  const headers = <tr>
+    {columns.map(c => <td>{c}</td>)}
+  </tr>;
   return(
     <div className="container">
       <div className="row">
         <div className="col s12 board">
           <table id="simple-board">
-              <tbody>
-                {rows}
-              </tbody>
-            </table>
+            <thead>
+              {headers}
+            </thead>
+            <tbody>
+              {rows}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
