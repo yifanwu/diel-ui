@@ -4,6 +4,8 @@ import { RelationObject } from "diel";
 import { ChartSpec, ChartType, BarChart, Scatterplot, Table, HeatMap } from ".";
 import { DielHanders } from "./DielComponent";
 import { LineChart } from "./charts/LineChart";
+import { LogError } from "./util";
+import { DotPlot } from "./charts/DotPlot";
 
 export function GetChartWithSpec(spec: ChartSpec, data: RelationObject, handlers?: DielHanders): JSX.Element {
   switch(spec.chartType) {
@@ -38,7 +40,14 @@ export function GetChartWithSpec(spec: ChartSpec, data: RelationObject, handlers
         brushHandler={handlers ? handlers.selectionHandler : null}
         svgClickHandler={handlers ? handlers.deSelectHandler : null}
       />;
+    case ChartType.DotPlot:
+      return <DotPlot
+        data={data}
+        spec={spec}
+        brushHandler={handlers ? handlers.selectionHandler : null}
+        svgClickHandler={handlers ? handlers.deSelectHandler : null}
+      />;
     default:
-      throw new Error(`Only supports barcharts and scatter plots for now`);
+      LogError(`Only supports barcharts and scatter plots for now, and you gave ${spec.chartType}`);
   }
 }

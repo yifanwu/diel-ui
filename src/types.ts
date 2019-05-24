@@ -1,4 +1,5 @@
 import { RelationObject } from "diel";
+import { map } from "d3";
 
 export interface VizLayout {
   chartHeight: number;
@@ -30,6 +31,13 @@ export type FilterValueType = number | string;
 export enum SelectionType {
   Set = "Set",
   Range = "Range"
+}
+
+export enum VisualSelectionType {
+  OneDimBrush = "OneDimBrush",
+  TwoDimBrush = "TwoDimBrush",
+  ShiftSelection = "ShiftSelection",
+  SingleSelection = "SingleSelection",
 }
 
 // the following are not data encoding, but static style choices
@@ -81,11 +89,14 @@ export enum ChartType {
   // todo
 }
 
+
 /**
  * This is a union of all the dimensions
  * we need to think harder about hwo to make it more precise and compose with other things
+ * FIXME: this is a bit weird.
  */
 export enum ChannelName {
+  value = "value", // value is used when there is just one dimen
   x = "x",
   y = "y",
   color = "color",
@@ -101,25 +112,32 @@ export interface ChartSpec {
   // relationName: string;
 }
 
+// Note: the first one will be the default
+export const InteractionsByChartType = new Map<ChartType, VisualSelectionType[]>([
+  [ChartType.Map, [VisualSelectionType.TwoDimBrush, VisualSelectionType.ShiftSelection, VisualSelectionType.SingleSelection]],
+  [ChartType.BarChart, [VisualSelectionType.OneDimBrush, VisualSelectionType.ShiftSelection]],
+  [ChartType.Scatter, [VisualSelectionType.TwoDimBrush, VisualSelectionType.OneDimBrush]],
+  [ChartType.Table, [VisualSelectionType.SingleSelection, VisualSelectionType.ShiftSelection]]
+]);
 
 // export enum SelectionType {
 //   OneDim = "OneDim",
 //   TwoDim = "TwoDim"
 // }
 
-// export type TwoDimSelection = {
-//   brushBoxType: SelectionType;
-//   minX: FilterValueType;
-//   maxX: FilterValueType;
-//   minY: FilterValueType;
-//   maxY: FilterValueType;
-// };
+export type TwoDimSelection = {
+  brushBoxType: SelectionType;
+  minX: FilterValueType;
+  maxX: FilterValueType;
+  minY: FilterValueType;
+  maxY: FilterValueType;
+};
 
-// export type OneDimSelection = {
-//   brushBoxType: SelectionType;
-//   min: FilterValueType;
-//   max: FilterValueType;
-// };
+export type OneDimSelection = {
+  brushBoxType: SelectionType;
+  min: FilterValueType;
+  max: FilterValueType;
+};
 
 
 // export interface ChartSpecBase2D extends ChartSpec {

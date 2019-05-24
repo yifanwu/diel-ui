@@ -12,6 +12,15 @@ export const DefaultColorRange = {
   maxColor: "red"
 }
 
+export const DefaultWideVizLayout = {
+  chartHeight: 150,
+  chartWidth: 400,
+  marginBottom: 20,
+  marginRight: 20,
+  marginTop: 20,
+  marginLeft: 40,
+}
+
 export const DefaultVizLayout = {
   chartHeight: 300,
   chartWidth: 400,
