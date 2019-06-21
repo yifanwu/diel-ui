@@ -4,7 +4,7 @@ import { Scatterplot } from "./charts/ScatterPlot";
 import { BarChart } from "./charts/BarChart";
 import { HeatMap } from "./charts/HeatMap";
 import { Table } from "./charts/Table";
-import { ChartType, UserSelection, ChartSpec, ChannelName, InteractionsByChartType, TwoDimSelection, OneDimSelection } from "./types";
+import { ChartType, UserSelection, ChartSpec, ChannelName, InteractionsByChartType } from "./types";
 import { DotPlot } from "./charts/DotPlot";
 import { GetChartWithSpec } from "./GetCharts";
 import { LineChart } from "./charts/LineChart";
@@ -17,8 +17,6 @@ export {
   ChartType,
   ChartSpec,
   ChannelName,
-  TwoDimSelection,
-  OneDimSelection,
   // charts
   Scatterplot,
   BarChart,

@@ -2,6 +2,8 @@ import * as d3 from "d3";
 import * as React from "react";
 import { ChartPropShared, FilterValueType, UserSelection, ChannelName, SelectionType,  } from "../types";
 import { DefaultVizLayout } from "../defaults";
+import { STRICT } from "diel/build/src/runtime/DielRuntime";
+import { LogError, getValidateAttribute } from "../util";
 
 interface TwoDimCoordProps extends ChartPropShared {
   // for scatter, fixed size
@@ -21,8 +23,8 @@ export const TwoDimCoord: React.StatelessComponent<TwoDimCoordProps> = (p) => {
   if (!data) {
     return <p>Data still loading</p>;
   }
-  const xValues = data.map(d => d[xAttribute] as number);
-  const yValues = data.map(d => d[yAttribute] as number);
+  const xValues = data.map(d => getValidateAttribute<number>(d, xAttribute));
+  const yValues = data.map(d => getValidateAttribute<number>(d, yAttribute));
   const xDomain = d3.extent(xValues);
   const yDomain = d3.extent(yValues);
   const x = d3.scaleLinear()

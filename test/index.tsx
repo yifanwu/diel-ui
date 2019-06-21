@@ -4,14 +4,21 @@ import * as ReactDOM from "react-dom";
 import { TableTest } from "./TableTest";
 import { BarTest } from "./BarTest";
 import { DotPlotTest } from "./DotPlotTest";
+import { MultiSeriesLineChartTest, SimpleLineChartTest } from "./LineChartTest";
 
 console.log("setting up load page");
 
 ReactDOM.render(
   <>
-    <DotPlotTest/>
+    <SimpleLineChartTest/>
+    <br></br>
+    <MultiSeriesLineChartTest/>
+    <br></br>
+    {/* <DotPlotTest/>
+    <br></br>
     <BarTest/>
-    <TableTest/>
+    <br></br>
+    <TableTest/> */}
   </>,
   document.getElementById("wrapper")
 );

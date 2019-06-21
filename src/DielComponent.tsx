@@ -49,6 +49,12 @@ export default class DielComponent<P extends DielComponentProps> extends React.C
 
   // FIXME: this is inefficient
   GenerateChart (spec: ChartSpec, relationName: string, handlers?: DielHanders) {
+    // if we were to make this work we should check if it has been updated before
+    // const self = this;
+    // const fn = (r: RelationObject) => {
+    //   self.setState({[relationName]: r});
+    // };
+    // this.props.diel.BindOutput(relationName, fn);
     const data = this.state[relationName];
     if (data) return GetChartWithSpec(spec, data, handlers);
     return null;

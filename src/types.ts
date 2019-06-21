@@ -1,6 +1,8 @@
 import { RelationObject } from "diel";
 import { map } from "d3";
 
+export const STRICT = true;
+
 export interface VizLayout {
   chartHeight: number;
   chartWidth: number;
@@ -105,10 +107,21 @@ export enum ChannelName {
   position = "position"
 }
 
+export enum AnnotationStyle {
+  Popup = "Popup",
+  Label = "Label",
+}
+
 export interface ChartSpec {
   chartType: ChartType;
   // channelName to columnName
   channelByColumn: Map<ChannelName, string>;
+  annotation?: {
+    columns: string[];
+    style: AnnotationStyle;
+    // e.g., `col1:${a_col1_val}\ncol2:${a_col2_val}`
+    format?: string;
+  }
   // relationName: string;
 }
 
@@ -125,19 +138,19 @@ export const InteractionsByChartType = new Map<ChartType, VisualSelectionType[]>
 //   TwoDim = "TwoDim"
 // }
 
-export type TwoDimSelection = {
-  brushBoxType: SelectionType;
-  minX: FilterValueType;
-  maxX: FilterValueType;
-  minY: FilterValueType;
-  maxY: FilterValueType;
-};
+// export type TwoDimSelection = {
+//   brushBoxType: SelectionType;
+//   minX: FilterValueType;
+//   maxX: FilterValueType;
+//   minY: FilterValueType;
+//   maxY: FilterValueType;
+// };
 
-export type OneDimSelection = {
-  brushBoxType: SelectionType;
-  min: FilterValueType;
-  max: FilterValueType;
-};
+// export type OneDimSelection = {
+//   brushBoxType: SelectionType;
+//   min: FilterValueType;
+//   max: FilterValueType;
+// };
 
 
 // export interface ChartSpecBase2D extends ChartSpec {
