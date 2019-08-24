@@ -7,6 +7,12 @@ import { LineChart } from "./charts/LineChart";
 import { LogError } from "./util";
 import { DotPlot } from "./charts/DotPlot";
 
+/**
+ * GetChartWithSepc returns React components
+ * @param spec configuration of the chart
+ * @param data data to be visualized
+ * @param handlers event handlers for selection and clicks
+ */
 export function GetChartWithSpec(spec: ChartSpec, data: RelationObject, handlers?: DielHanders): JSX.Element {
   switch(spec.chartType) {
     case ChartType.BarChart:

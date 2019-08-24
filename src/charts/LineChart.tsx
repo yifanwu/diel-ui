@@ -20,34 +20,34 @@ export const LineChart: React.StatelessComponent<ChartPropShared> = (p) => {
     let lineMapping = d3.line<RecordObject>().x((d) => x(d[xAttribute])).y((d) => y(d[yAttribute]));
     // need to generate dots signaling each point
     // also need to figure out if there are annotations
+    // let onMouseOver: (e: React.MouseEvent<SVGCircleElement, MouseEvent>) => void = null;
+    // let onMouseOut = null;
+    const circles = p.data.map((d, _) => {
+      const text = p.spec.annotation
+        ?  p.spec.annotation.columns.map(c => d[c]).join(", ")
+        : null
+        ;
+      return <circle
+        r="3"
+        cx={x(d[xAttribute] as number)}
+        cy={y(d[yAttribute] as number)}
+        data-lable={text}
+        // onMouseOver={onMouseOver}
+        // onMouseOut={null}
+        fill={"gray"}
+        fillOpacity={0.5}
+      ></circle>;
+    });
     if (p.spec.channelByColumn.get(ChannelName.color)) {
       const colorAttribute = p.spec.channelByColumn.get(ChannelName.color);
       // then we create a little dictionary of colors
-      let onMouseOver: (e: React.MouseEvent<SVGCircleElement, MouseEvent>) => void = null;
-      let onMouseOut = null;
       // const tooltip = <div id="toolTip" style={{opacity: 0}}></div>
-      if (p.spec.annotation) {
-        onMouseOver = (e) => {
-          const text = e.currentTarget.getAttribute("data-lable");
-          console.log("pop up detected", text);
-        }
-      }
-      const circles = p.data.map((d, _) => {
-        const text = p.spec.annotation
-          ?  p.spec.annotation.columns.map(c => d[c]).join(", ")
-          : null
-          ;
-        return <circle
-          r="3"
-          cx={x(d[xAttribute] as number)}
-          cy={y(d[yAttribute] as number)}
-          data-lable={text}
-          onMouseOver={onMouseOver}
-          onMouseOut={null}
-          fill={"gray"}
-          fillOpacity={0.5}
-        ></circle>;
-      });
+      // if (p.spec.annotation) {
+      //   onMouseOver = (e) => {
+      //     const text = e.currentTarget.getAttribute("data-lable");
+      //     console.log("pop up detected", text);
+      //   }
+      // }
       // now for each series, generate line
       // FIXME: perf issue
       const series = new Set(p.data.map(d => d[colorAttribute] as string));
@@ -61,8 +61,25 @@ export const LineChart: React.StatelessComponent<ChartPropShared> = (p) => {
       });
       return lines.concat(circles);
     } else {
-      let line = lineMapping(p.data);
-      return <path stroke={color} fill="none" stroke-wdith="1.5" d={line}></path>;
+      // let's do the cuts
+      if (p.spec.custom && p.spec.custom.noLineIfMoreThan) {
+        const cutOff = p.spec.custom.noLineIfMoreThan;
+        const slices = [];
+        let prevIndex = 0;
+        for (let i = 1; i < p.data.length; i++) {
+          const v1 = p.data[i-1][xAttribute] as number;
+          const v2 = p.data[i][xAttribute] as number;
+          if ((v2 - v1) > cutOff) {
+            // create a new segment from prevIndex
+            slices.push(lineMapping(p.data.slice(prevIndex, i)));
+            prevIndex = i;
+          }
+        }
+        return slices.map(line => <path stroke={color} fill="none" stroke-wdith="1.5" d={line}></path>, circles);
+      } else {
+        let line = lineMapping(p.data);
+        return [<path stroke={color} fill="none" stroke-wdith="1.5" d={line}></path>, circles];
+      }
     }
   };
   return <TwoDimCoord

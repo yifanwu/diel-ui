@@ -14,11 +14,11 @@ ReactDOM.render(
     <br></br>
     <MultiSeriesLineChartTest/>
     <br></br>
-    {/* <DotPlotTest/>
+    <DotPlotTest/>
     <br></br>
     <BarTest/>
     <br></br>
-    <TableTest/> */}
+    <TableTest/>
   </>,
   document.getElementById("wrapper")
 );

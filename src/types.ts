@@ -112,6 +112,12 @@ export enum AnnotationStyle {
   Label = "Label",
 }
 
+export interface LineChartCustomConfig {
+  noLineIfMoreThan?: number;
+}
+
+export type ChartCustomConfig = LineChartCustomConfig;
+
 export interface ChartSpec {
   chartType: ChartType;
   // channelName to columnName
@@ -122,6 +128,8 @@ export interface ChartSpec {
     // e.g., `col1:${a_col1_val}\ncol2:${a_col2_val}`
     format?: string;
   }
+  custom?: ChartCustomConfig;
+  // TODO: if we want to clip the axis...
   // relationName: string;
 }
 

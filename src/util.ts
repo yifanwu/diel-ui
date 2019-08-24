@@ -14,3 +14,8 @@ export function LogError(e: string) {
   console.log(`%c${e}`, "red");
   throw new Error(e);
 }
+
+// TODO: to slice (shallow copy) is probably not very efficient
+export function cutDataIntoChunks(data: number[], cutOff: number) {
+  
+}
